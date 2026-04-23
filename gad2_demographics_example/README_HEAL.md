@@ -97,9 +97,14 @@ Raw Data → Data Cleaning → Feature Engineering → Model Training → Valida
 ```
 .
 ├── gad2_demographics_example/
-│   ├── analysis_functions.ipynb
-│   ├── presentation.ipynb
-│   └── data/
+│   ├── data/
+│       ├── HDP01233Gad2.xlsx
+│       ├── HDP01233_Demographics.xlsx
+│       ├── HDP00619.csv
+│   ├── Notebooks/
+│       ├── analysis_functions.ipynb
+│       ├── resentation.ipynb
+│   └── README_HEAL.md
 ├── README.md
 ├── LICENSE
 ├── .gitignore

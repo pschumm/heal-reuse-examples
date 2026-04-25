@@ -1,4 +1,4 @@
-# GAD-2 Anxiety Analysis: Demographic Predictors of Anxiety
+# GAD-2 Anxiety Analysis: A Data Reuse Example for NIH HEAL Datasets
 
 **Author:** Urja Mehta  
 **Organization:** Renaissance Computing Institute (RENCI), UNC–Chapel Hill  
@@ -7,222 +7,133 @@
 
 ---
 
-## Project Overview
+## Overview
 
-This project analyzes anxiety levels using the GAD-2 (Generalized Anxiety Disorder-2) screening tool across two large healthcare datasets: **HDP00619** and **HDP01233**. The goal is to identify demographic and socioeconomic predictors of anxiety and develop machine learning models to predict anxiety severity and classify individuals into risk categories.
-
-As part of the HEAL (Helping to End Addiction Long-term) Data Reuse initiative, this work demonstrates how healthcare data can be integrated, cleaned, and analyzed to generate actionable insights for mental health research.
-
----
-
-## Background
+This project demonstrates **data reuse** by combining two independent HEAL studies — HDP00619 and HDP01233 — both of which measured anxiety using the GAD-2 instrument alongside demographic variables. Neither study alone has enough participants for robust subgroup analysis, but together they form a dataset of 281 records used to explore how age, sex, ethnicity, marital status, and employment relate to anxiety severity.
 
 ### What is GAD-2?
 
-The GAD-2 is a brief, validated screening tool for generalized anxiety disorder consisting of two questions:
-
-1. Feeling nervous, anxious, or on edge (gad701)  
-2. Not being able to stop or control worrying (gad702)
-
-Scores range from **0–6**, with scores **≥3** indicating possible anxiety disorder requiring further evaluation.
-
----
-
-### Datasets Used
-
-- **HDP00619**: CSV format, 619 participant records with demographics and GAD-2 scores  
-- **HDP01233**: Excel format (Demographics + GAD-2)
-- **Combined Dataset**: 1,852 total participants after data cleaning and integration  
+The GAD-2 is a two-question screening tool for generalized anxiety disorder. Each question is scored 0–3, giving a total range of **0–6**. A score ≥ 6 is used here as the threshold for "higher anxiety."
 
 ---
 
 ## Research Questions
 
-1. **What demographic and socioeconomic factors are most strongly associated with anxiety levels (GAD-2 scores)?**
-
-2. **Can we predict anxiety severity (GAD total score) using demographic features such as age, sex, ethnicity, marital status, and employment?**
-
-3. **What is the relationship between each individual demographic feature and total anxiety scores?**
-
-4. **Can we classify individuals into high vs. low anxiety groups based on their demographic characteristics?**
-
-5. **Which features are most important for predicting anxiety classification?**
+1. What is the relationship between each individual demographic feature and total anxiety scores?
+2. Can we predict anxiety severity (GAD total score) using demographic features?
+3. What demographic and socioeconomic factors are most strongly associated with anxiety levels?
+4. Can we classify individuals into high vs. low anxiety groups based on demographic characteristics?
+5. Which features are most important for predicting anxiety classification?
 
 ---
 
-## Technical Approach
+## Datasets
 
-### Data Processing Pipeline
+| Dataset | Format | Records (after cleaning) |
+|---|---|---|
+| HDP00619 | CSV | 82 |
+| HDP01233 | Excel (demographics + GAD-2) | 199 |
+| **Combined** | — | **281** |
 
-```
-Raw Data → Data Cleaning → Feature Engineering → Model Training → Validation
-```
-
-### Data Processing Steps
-
-- **Data Integration**: Merged heterogeneous datasets  
-- **Data Cleaning**: Removed duplicates, handled missing values, standardized variables  
-- **Feature Engineering**:
-  - Created `gad_total`
-  - Created `higher_anxiety` (gad_total ≥ 6)
-  - One-hot encoded categorical variables  
+Variables used (HEAL standard names): `Age`, `Sex`, `ETHNIC`, `MARISTAT`, `EMPSTAT`, `GAD2FeelNervScale`, `GAD2NotStopWryScale`
 
 ---
 
-### Features Analyzed
+## How It Works: Notebook Walkthrough
 
-| Feature | Description | Type |
-|--------|------------|------|
-| age | Age in years | Continuous |
-| sex | Sex/Gender | Categorical |
-| ethnic | Ethnicity | Binary |
-| marstat | Marital status | Categorical |
-| empstat | Employment status | Categorical |
+The analysis is split across two notebooks — `analysis_functions.ipynb` defines all helper functions, and `presentation.ipynb` runs the full analysis end-to-end.
 
-**Note:** `height` was excluded due to no theoretical relevance.
+### 1. Imports and Setup
+Loads libraries and runs `analysis_functions.ipynb` via `%run` to make all helper functions available.
 
----
+### 2. Load, Standardize, and Clean Data
+Raw data is loaded first and displayed so you can see the original column names and structure. The key challenge — different studies use different column names for the same variables (e.g., `gender` vs `sex`, `gad701` vs `gad2feelnervscale`) — is solved using **HEAL Common Data Element (CDE) mappings** stored in `heal-mappings.json`. This file maps each standard variable name to the study-specific column name, so cleaning is programmatic rather than manual. After cleaning, both datasets use the same standard column names and value encodings.
 
-## Machine Learning Models
+### 3. Merge the Datasets
+Both cleaned datasets are previewed, then concatenated into a single 281-record dataset. The shared structure (enabled by CDEs) makes this a straightforward `pd.concat`.
 
-- **Linear Regression** → Predict anxiety score  
-- **Logistic Regression** → Classify high vs. low anxiety  
-- **Decision Tree** → Interpretable rules  
-- **Random Forest** → Best-performing ensemble model  
+### 4. Research Question 1 — Exploratory Analysis
+A 2×3 panel shows each demographic variable against GAD total score:
+- **Age**: scatter plot with linear regression line
+- **Sex, Ethnicity, Marital Status, Employment**: box plots showing the distribution of GAD scores per category, with labels drawn from the HEAL standard variable definitions
+
+### 5. Prepare Data for Modeling
+Features and targets are prepared. Class imbalance (few high-anxiety cases) is addressed with:
+- **Stratified train/test split** — preserves the high-anxiety proportion in both sets
+- **Balanced class weights** in all classifiers — penalizes errors on the minority class more heavily
+
+### 6. Research Questions 2 & 3 — Linear Regression
+Linear regression predicts GAD total score (RQ2) and the coefficient plot identifies which features have the strongest association with anxiety (RQ3).
+
+### 7. Research Question 4 — Classification Models
+Logistic regression, decision tree, and random forest all classify individuals as high vs. low anxiety. The confusion matrix and F1 score for the high-anxiety class are the key evaluation metrics — accuracy alone is misleading with imbalanced classes.
+
+### 8. Research Question 5 — Feature Importance
+Random forest feature importance ranks which demographic variables are most predictive of anxiety classification.
+
+### 9. Answers to Research Questions
+A summary cell prints answers to all five research questions using the computed model results.
 
 ---
 
 ## Repository Structure
 
 ```
-.
-├── gad2_demographics_example/
-│   ├── data/
-│       ├── HDP01233Gad2.xlsx
-│       ├── HDP01233_Demographics.xlsx
-│       ├── HDP00619.csv
-│   ├── Notebooks/
-│       ├── analysis_functions.ipynb
-│       ├── resentation.ipynb
-│   └── README_HEAL.md
-├── README.md
-├── LICENSE
-├── .gitignore
+gad2_demographics_example/
+├── data/
+│   ├── heal-mappings.json          # HEAL CDE variable mappings
+│   ├── HDP00619.csv
+│   ├── HDP01233_Demographics.xlsx
+│   └── HDP01233_Gad2.xlsx
+├── Notebooks/
+│   ├── analysis_functions.ipynb    # All helper functions (cleaning, plotting, models)
+│   └── presentation.ipynb          # Main analysis notebook
+└── README.md
 ```
 
-## Setup and Installation
+---
 
-### Requirements
-```bash
+## Setup
+
+**Requirements:**
+```
 pandas>=1.5.0
 numpy>=1.23.0
 matplotlib>=3.6.0
 scikit-learn>=1.2.0
-openpyxl>=3.1.0  # For Excel file support
+openpyxl>=3.1.0
 jupyter>=1.0.0
 ```
 
-
-## Setup
-
+**Install and run:**
 ```bash
 git clone https://github.com/heal-data-stewards/heal-reuse-examples.git
-cd GAD2-Anxiety-Analysis
+cd heal-reuse-examples/gad2_demographics_example
 pip install -r requirements.txt
-jupyter notebook
+jupyter notebook Notebooks/presentation.ipynb
+```
 
-## Usage
+**To modify functions:** edit `analysis_functions.ipynb` — `presentation.ipynb` imports it automatically via `%run`.
 
-### For Presentations
-1. Open `presentation.ipynb`
-2. Ensure data files are in the same directory
-3. Run all cells sequentially
-4. The notebook will:
-   - Display research questions
-   - Load and clean data
-   - Generate exploratory plots
-   - Train all models
-   - Answer research questions with results
-
-### For Development
-1. Open `analysis_functions.ipynb` to modify functions
-2. The presentation notebook automatically imports these functions using `%run`
-3. Make changes to functions and re-run presentation to see updates
-
-## Key Findings
-
-### Model Performance
-- **Linear Regression**: R² = 0.1145
-- **Logistic Regression**: Accuracy = 0.9649
-- **Decision Tree**: Accuracy = 0.9474
-- **Random Forest**: Accuracy = 0.9649
-
-### Most Important Predictors
-Based on Random Forest feature importance:
-1. Age
-2. Ethnicity
-3. mployment Status
-
-
-## Data Privacy and Ethics
-
-- All data used in this analysis is from de-identified, publicly available research datasets
-- No personally identifiable information (PII) is included
-- Analysis follows HIPAA compliance guidelines for healthcare data
-- This work is part of the NIH HEAL Initiative promoting responsible data reuse
+---
 
 ## Limitations
 
-1. **Cross-sectional data**: Cannot establish causation
-2. **Self-reported measures**: Subject to response bias
-3. **Limited features**: Other factors (income, education, medical history) not available
-4. **Dataset heterogeneity**: Different collection methods between HDP00619 and HDP01233
+- **Cross-sectional data**: Cannot establish causation
+- **Small combined sample**: 281 records limits statistical power, particularly for subgroup analyses
+- **Class imbalance**: High-anxiety cases are rare in this sample, making classification challenging
+- **Limited features**: Income, education, and clinical history are not available but likely relevant
+- **Dataset heterogeneity**: HDP00619 and HDP01233 recruited participants under different study contexts
 
-## Future Directions
-
-- Incorporate additional socioeconomic variables (income, education level)
-- Longitudinal analysis to track anxiety changes over time
-- Deep learning approaches for more complex pattern recognition
-- External validation on independent datasets
-- Development of web-based risk calculator for clinical use
-
-## Technical Contributions
-
-This project demonstrates:
-- **Data Integration**: Merging heterogeneous healthcare datasets
-- **Data Quality**: Robust cleaning and validation pipelines
-- **Reproducibility**: Modular, well-documented code
-- **Visualization**: Clear, publication-quality plots
-- **Machine Learning**: Multiple modeling approaches with proper validation
-- **Research Communication**: Question-driven analysis framework
+---
 
 ## Acknowledgments
 
-This work was completed as part of the HEAL Data Reuse internship at the Renaissance Computing Institute (RENCI), UNC–Chapel Hill. Special thanks to:
-- RENCI research computing infrastructure
-- NIH HEAL Initiative for data access
-- Hina Shah, Liezl Mae Fos. Julie Horvath
+Completed as part of the HEAL Data Reuse internship at RENCI, UNC–Chapel Hill.  
+Thanks to: Hina Shah, Liezl Mae Fos, Julie Horvath, and the NIH HEAL Initiative.
 
-## Citation
-
-If you use this code or analysis approach, please cite:
-
-```
-Urja Mehta. (2026). GAD-2 Anxiety Analysis: Demographic Predictors of Anxiety. 
-RENCI HEAL Data Reuse Project. University of North Carolina at Chapel Hill.
-```
-
-## Contact
-
-**Urja Mehta**  
-ata Analyst Research Intern 
-Renaissance Computing Institute (RENCI)  
-University of North Carolina at Chapel Hill  
-Email: urjam@renci.org  
-GitHub: Urjamehta2
+---
 
 ## License
 
-This project is licensed under the MIT License - see LICENSE file for details.
-
-
+MIT License — see [LICENSE](../../LICENSE) for details.

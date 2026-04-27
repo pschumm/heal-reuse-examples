@@ -19,11 +19,10 @@ The GAD-2 is a two-question screening tool for generalized anxiety disorder. Eac
 
 ## Research Questions
 
-1. What is the relationship between each individual demographic feature and total anxiety scores?
+1. Is there a relationship between demographic variables and total anxiety scores?
 2. Can we predict anxiety severity (GAD total score) using demographic features?
-3. What demographic and socioeconomic factors are most strongly associated with anxiety levels?
-4. Can we classify individuals into high vs. low anxiety groups based on demographic characteristics?
-5. Which features are most important for predicting anxiety classification?
+3. Can we classify individuals into high vs. low anxiety groups based on demographic characteristics?
+4. Which demographic and socioeconomic factors are most strongly associated with anxiety levels, and which are most important for predicting anxiety classification?
 
 ---
 
@@ -57,19 +56,22 @@ A 2×3 panel shows each demographic variable against GAD total score:
 - **Age**: scatter plot with linear regression line
 - **Sex, Ethnicity, Marital Status, Employment**: box plots showing the distribution of GAD scores per category, with labels drawn from the HEAL standard variable definitions
 
+### 4b. Cluster Analysis
+Since the two studies recruited distinct populations (pain patients vs. OUD patients), K-means clustering and PCA visualization are used to ask: do the two populations occupy separate regions of the feature space, or do anxiety-driven patterns cut across study boundaries? This is a direct test of the value of combining the datasets.
+
 ### 5. Prepare Data for Modeling
 Features and targets are prepared. Class imbalance (few high-anxiety cases) is addressed with:
 - **Stratified train/test split** — preserves the high-anxiety proportion in both sets
 - **Balanced class weights** in all classifiers — penalizes errors on the minority class more heavily
 
-### 6. Research Questions 2 & 3 — Linear Regression
-Linear regression predicts GAD total score (RQ2) and the coefficient plot identifies which features have the strongest association with anxiety (RQ3).
+### 6. Research Question 2 — Linear Regression
+Linear regression predicts GAD total score. The coefficient plot (addressing RQ4) identifies which features have the strongest linear association with anxiety.
 
-### 7. Research Question 4 — Classification Models
-Logistic regression, decision tree, and random forest all classify individuals as high vs. low anxiety. The confusion matrix and F1 score for the high-anxiety class are the key evaluation metrics — accuracy alone is misleading with imbalanced classes.
+### 7. Research Question 3 — Classification Models
+Logistic regression, decision tree, and random forest classify individuals as high vs. low anxiety. The confusion matrix and F1 score for the high-anxiety class are the key evaluation metrics — accuracy alone is misleading with imbalanced classes.
 
-### 8. Research Question 5 — Feature Importance
-Random forest feature importance ranks which demographic variables are most predictive of anxiety classification.
+### 8. Research Question 4 — Random Forest Feature Importance
+Random forest feature importance ranks which demographic variables are most predictive of anxiety classification, complementing the regression coefficients from the previous section.
 
 ### 9. Answers to Research Questions
 A summary cell prints answers to all five research questions using the computed model results.

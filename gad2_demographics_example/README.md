@@ -65,16 +65,16 @@ Features and targets are prepared. Class imbalance (few high-anxiety cases) is a
 - **Balanced class weights** in all classifiers — penalizes errors on the minority class more heavily
 
 ### 6. Research Question 2 — Linear Regression
-Linear regression predicts GAD total score. The coefficient plot (addressing RQ4) identifies which features have the strongest linear association with anxiety.
+Linear regression predicts GAD total score. The coefficient plot shows the direction and strength of each feature's linear association with anxiety — this feeds into the comparison made in Section 8.
 
 ### 7. Research Question 3 — Classification Models
-Logistic regression, decision tree, and random forest classify individuals as high vs. low anxiety. The confusion matrix and F1 score for the high-anxiety class are the key evaluation metrics — accuracy alone is misleading with imbalanced classes.
+Logistic regression and decision tree classify individuals as high vs. low anxiety. The confusion matrix and F1 score for the high-anxiety class are the key evaluation metrics — accuracy alone is misleading with imbalanced classes.
 
 ### 8. Research Question 4 — Random Forest Feature Importance
-Random forest feature importance ranks which demographic variables are most predictive of anxiety classification, complementing the regression coefficients from the previous section.
+Random forest feature importance ranks which demographic variables are most predictive of anxiety classification. Comparing these importance scores against the regression coefficients from Section 6 gives a fuller picture of which features matter and why.
 
 ### 9. Answers to Research Questions
-A summary cell prints answers to all five research questions using the computed model results.
+A summary cell prints answers to all four research questions using the computed model results.
 
 ---
 

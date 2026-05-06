@@ -206,3 +206,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 .DS_Store
+
+# Study data files — download from HEAL Data Platform, do not commit
+**/data/*.csv
+**/data/*.xlsx

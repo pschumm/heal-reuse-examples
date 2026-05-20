@@ -9,7 +9,7 @@
 
 ## Overview
 
-This project demonstrates **data reuse** by combining two independent HEAL studies — HDP00619 and HDP01233 — both of which measured anxiety using the GAD-2 instrument alongside demographic variables. Neither study alone has enough participants for robust subgroup analysis, but together they form a dataset of 281 records used to explore how age, sex, ethnicity, marital status, and employment relate to anxiety severity.
+This project demonstrates **data reuse** by combining data from two independent NIH HEAL studies that each collected anxiety scores using the **GAD-2 (Generalized Anxiety Disorder 2-item)** instrument alongside demographic variables. Neither study alone has enough participants for robust subgroup analysis, but together they form a dataset of 281 records used to explore how age, sex, ethnicity, marital status, and employment relate to anxiety severity.
 
 ### What is GAD-2?
 
@@ -28,28 +28,32 @@ The GAD-2 is a two-question screening tool for generalized anxiety disorder. Eac
 
 ## Datasets
 
-| Dataset | Format | Records (after cleaning) |
-|---|---|---|
-| HDP00619 | CSV | 82 |
-| HDP01233 | Excel (demographics + GAD-2) | 199 |
-| **Combined** | — | **281** |
+| Dataset | Study | Format | Records (after cleaning) |
+|---|---|---|---|
+| [HDP00619](https://healdata.org/portal/discovery/HDP00619/) | tDCS to Decrease Cravings in Patients with OUD | CSV | 82 |
+| [HDP01233](https://healdata.org/portal/discovery/HDP01233/) | Sensory Phenotyping to Enhance Neuropathic Pain Drug Development | Excel (demographics + GAD-2) | 199 |
+| **Combined** | — | — | **281** |
 
 Variables used (HEAL standard names): `Age`, `Sex`, `ETHNIC`, `MARISTAT`, `EMPSTAT`, `GAD2FeelNervScale`, `GAD2NotStopWryScale`
+
+> **Note:** The data files (`*.csv`, `*.xlsx`) are excluded from this repository. Download them directly from the HEAL Data Platform links above and place them in the `data/` directory before running the notebook.
 
 ---
 
 ## How It Works: Notebook Walkthrough
 
-The analysis is split across two notebooks — `analysis_functions.ipynb` defines all helper functions, and `presentation.ipynb` runs the full analysis end-to-end.
+The analysis lives in `reuse_example.ipynb`. Helper functions are defined in `analysis_functions.py` and imported at the top of the notebook.
 
 ### 1. Imports and Setup
-Loads libraries and runs `analysis_functions.ipynb` via `%run` to make all helper functions available.
+Loads libraries and imports all helper functions from `analysis_functions.py`.
 
 ### 2. Load, Standardize, and Clean Data
-Raw data is loaded first and displayed so you can see the original column names and structure. The key challenge — different studies use different column names for the same variables (e.g., `gender` vs `sex`, `gad701` vs `gad2feelnervscale`) — is solved using **HEAL Common Data Element (CDE) mappings** stored in `heal-mappings.json`. This file maps each standard variable name to the study-specific column name, so cleaning is programmatic rather than manual. After cleaning, both datasets use the same standard column names and value encodings.
+Raw files are loaded and their dimensions printed. The key challenge — different studies use different column names for the same variables (e.g., `gender` vs `sex`, `gad701` vs `gad2feelnervscale`) — is solved using **HEAL Common Data Element (CDE) mappings** stored in `heal-mappings.json`. This file maps each standard variable name to the study-specific column name, so cleaning is programmatic rather than manual. After cleaning, both datasets use the same standard column names and value encodings.
+
+> To preview the raw or cleaned data interactively, uncomment the `display()` lines in the load and clean cells.
 
 ### 3. Merge the Datasets
-Both cleaned datasets are previewed, then concatenated into a single 281-record dataset. The shared structure (enabled by CDEs) makes this a straightforward `pd.concat`.
+Record counts are confirmed, then both cleaned datasets are concatenated into a single 281-record dataset. The shared structure (enabled by CDEs) makes this a straightforward `pd.concat`.
 
 ### 4. Research Question 1 — Exploratory Analysis
 A 2×3 panel shows each demographic variable against GAD total score:
@@ -57,7 +61,7 @@ A 2×3 panel shows each demographic variable against GAD total score:
 - **Sex, Ethnicity, Marital Status, Employment**: box plots showing the distribution of GAD scores per category, with labels drawn from the HEAL standard variable definitions
 
 ### 4b. Cluster Analysis
-Since the two studies recruited distinct populations (pain patients vs. OUD patients), K-means clustering and PCA visualization are used to ask: do the two populations occupy separate regions of the feature space, or do anxiety-driven patterns cut across study boundaries? This is a direct test of the value of combining the datasets.
+Since the two studies recruited distinct populations (OUD patients vs. chronic pain patients), K-means clustering (k=2) and PCA visualization are used to ask: do the two populations occupy separate regions of the feature space, or do anxiety-driven patterns cut across study boundaries? This is a direct test of the value of combining the datasets.
 
 ### 5. Prepare Data for Modeling
 Features and targets are prepared. Class imbalance (few high-anxiety cases) is addressed with:
@@ -83,13 +87,13 @@ A summary cell prints answers to all four research questions using the computed 
 ```
 gad2_demographics_example/
 ├── data/
-│   ├── heal-mappings.json          # HEAL CDE variable mappings
-│   ├── HDP00619.csv
-│   ├── HDP01233_Demographics.xlsx
-│   └── HDP01233_Gad2.xlsx
+│   ├── heal-mappings.json          # HEAL CDE variable mappings (included)
+│   ├── HDP00619.csv                # not tracked — download from HEAL platform
+│   ├── HDP01233_Demographics.xlsx  # not tracked — download from HEAL platform
+│   └── HDP01233_Gad2.xlsx          # not tracked — download from HEAL platform
 ├── Notebooks/
-│   ├── analysis_functions.ipynb    # All helper functions (cleaning, plotting, models)
-│   └── presentation.ipynb          # Main analysis notebook
+│   ├── analysis_functions.py       # All helper functions (cleaning, plotting, models)
+│   └── reuse_example.ipynb         # Main analysis notebook
 └── README.md
 ```
 
@@ -112,10 +116,10 @@ jupyter>=1.0.0
 git clone https://github.com/heal-data-stewards/heal-reuse-examples.git
 cd heal-reuse-examples/gad2_demographics_example
 pip install -r requirements.txt
-jupyter notebook Notebooks/presentation.ipynb
+jupyter notebook Notebooks/reuse_example.ipynb
 ```
 
-**To modify functions:** edit `analysis_functions.ipynb` — `presentation.ipynb` imports it automatically via `%run`.
+**To modify functions:** edit `analysis_functions.py` — `reuse_example.ipynb` imports it at the top of the notebook.
 
 ---
 

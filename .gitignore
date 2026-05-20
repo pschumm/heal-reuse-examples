@@ -210,3 +210,7 @@ __marimo__/
 # Study data files — download from HEAL Data Platform, do not commit
 **/data/*.csv
 **/data/*.xlsx
+gad2_demographics_example/Notebooks/208170/
+gad2_demographics_example/Notebooks/ICPSR 208170/
+gad2_demographics_example/Notebooks/__MACOSX/
+gad2_demographics_example/Notebooks/files/
